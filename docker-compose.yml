@@ -10,6 +10,7 @@ services:
     links: ["database", "redis"]
     environment:
       DB_URI: postgres://root:password@database:5432/raptor
+    env_file: .env
 
   bot:
     build:
@@ -21,6 +22,7 @@ services:
     environment:
       API_LOCATION: api
       API_SCHEME: http
+    env_file: .env
 
   database:
     image: postgres
