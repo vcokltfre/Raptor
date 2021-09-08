@@ -142,3 +142,4 @@ cython_debug/
 
 # Project
 pg_data/
+configs/
