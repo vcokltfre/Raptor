@@ -18,4 +18,4 @@ INFRACTION_TYPES = {
     "MISC": 5,
 }
 
-I_INFRACTION_TYPE = {v: k for k, v in INFRACTION_TYPES.items()}
+I_INFRACTION_TYPES = {v: k for k, v in INFRACTION_TYPES.items()}
