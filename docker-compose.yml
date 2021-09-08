@@ -25,6 +25,7 @@ services:
     environment:
       API_LOCATION: api
       API_SCHEME: http
+      API_PORT: "5577"
       REDIS_URI: redis://redis:6379
     env_file: .env
     volumes:
