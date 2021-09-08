@@ -8,3 +8,14 @@ LOG_TYPES = {
 }
 
 I_LOG_TYPES = {v: k for k, v in LOG_TYPES.items()}
+
+INFRACTION_TYPES = {
+    "NOTE": 0,
+    "WARN": 1,
+    "KICK": 2,
+    "MUTE": 3,
+    "BAN": 4,
+    "MISC": 5,
+}
+
+I_INFRACTION_TYPE = {v: k for k, v in INFRACTION_TYPES.items()}
