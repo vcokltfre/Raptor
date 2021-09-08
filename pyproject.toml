@@ -20,6 +20,7 @@ black = "^21.8b0"
 isort = "^5.9.3"
 uvicorn = {extras = ["standard"], version = "^0.15.0"}
 aerich = "^0.5.8"
+aioredis = "^2.0.0"
 
 [tool.poetry.dev-dependencies]
 
