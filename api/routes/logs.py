@@ -1,13 +1,15 @@
 from fastapi import APIRouter, HTTPException
-
-from ..db.models import Log
-from ..models import Log as APILog, LogResponse
-from ..snowflake import create_snowflake
+from tortoise.exceptions import DoesNotExist
 
 from common.constants import I_LOG_TYPES
 
+from ..db.models import Log
+from ..models import Log as APILog
+from ..models import LogResponse
+from ..snowflake import create_snowflake
 
 router = APIRouter(prefix="/logs")
+
 
 @router.post("/")
 async def create_log(type: int, log: APILog) -> int:
@@ -24,9 +26,13 @@ async def create_log(type: int, log: APILog) -> int:
 
     return id
 
+
 @router.get("/{id}")
 async def get_log(id: int) -> LogResponse:
-    log = await Log.get(id=id)
+    try:
+        log = await Log.get(id=id)
+    except DoesNotExist:
+        raise HTTPException(404, "Invalid log.")
 
     return LogResponse(
         id=id,
