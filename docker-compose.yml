@@ -10,6 +10,7 @@ services:
     links: ["database", "redis"]
     environment:
       DB_URI: postgres://root:password@database:5432/raptor
+      REDIS_URI: redis://redis:6379
     env_file: .env
     ports:
       - 5577:5577
@@ -24,6 +25,7 @@ services:
     environment:
       API_LOCATION: api
       API_SCHEME: http
+      REDIS_URI: redis://redis:6379
     env_file: .env
     volumes:
       - ./configs:/configs
