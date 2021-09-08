@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "raptor"
+version = "0.1.0"
+description = "Raptor is a high performance Discord moderation bot."
+authors = ["vcokltfre <vcokltfre@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/vcokltfre/Raptor"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+"discord.py" = {git = "https://github.com/Rapptz/discord.py"}
+orjson = "^3.6.3"
+aiodns = "^3.0.0"
+cchardet = "^2.1.7"
+asyncpg = "^0.24.0"
+tortoise-orm = "^0.17.7"
+taskipy = "^1.8.2"
+fastapi = "^0.68.1"
+black = "^21.8b0"
+isort = "^5.9.3"
+uvicorn = {extras = ["standard"], version = "^0.15.0"}
+aerich = "^0.5.8"
+
+[tool.poetry.dev-dependencies]
+
+[tool.taskipy.tasks]
+watch-api = "uvicorn api.main:app --reload --port 5577"
+start-api = "uvicorn api.main:app --host 0.0.0.0 --port 5577"
+start-bot = "python3 -m bot"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

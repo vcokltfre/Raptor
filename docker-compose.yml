@@ -1,0 +1,40 @@
+version: "2"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: API.Dockerfile
+    restart: always
+    depends_on: ["database", "redis"]
+    links: ["database", "redis"]
+    environment:
+      DB_URI: postgres://root:password@database:5432/raptor
+
+  bot:
+    build:
+      context: .
+      dockerfile: Bot.Dockerfile
+    restart: always
+    depends_on: ["api"]
+    links: ["api"]
+    environment:
+      API_LOCATION: api
+      API_SCHEME: http
+
+  database:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: root
+      POSTGRES_DB: raptor
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+    ports:
+      - 54321:5432 # Used for local debugging. Do not open this port on the firewall.
+
+  redis:
+    image: redis
+    restart: always
