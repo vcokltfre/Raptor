@@ -3,12 +3,16 @@ from os import environ
 
 from fastapi import FastAPI, Request, Response
 
+from common.redis import RedisClient
+
 from .db.tortoise import init as db_init
 from .routes import router
 
 app = FastAPI()
 
 app.include_router(router)
+
+redis = RedisClient()
 
 
 @app.on_event("startup")
