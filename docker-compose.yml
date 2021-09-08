@@ -23,6 +23,8 @@ services:
       API_LOCATION: api
       API_SCHEME: http
     env_file: .env
+    volumes:
+      - ./configs:/configs
 
   database:
     image: postgres
