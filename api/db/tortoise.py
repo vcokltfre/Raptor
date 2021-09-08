@@ -3,7 +3,6 @@ from os import environ
 
 from tortoise import Tortoise, run_async
 
-
 TORTOISE_ORM = {
     "connections": {"default": environ["DB_URI"]},
     "apps": {
