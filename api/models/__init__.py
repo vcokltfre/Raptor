@@ -1,3 +1,3 @@
-from .log import Log
+from .log import Log, LogResponse
 
-__all__ = ("Log",)
+__all__ = ("Log","LogResponse")
