@@ -9,6 +9,9 @@ from yaml import safe_load
 def _get_local_config(location: str, guild_id: int) -> dict:
     fp = Path(location) / f"{guild_id}.yml"
 
+    if not fp.exists():
+        raise FileNotFoundError("The provided guild does not have a config file.")
+
     return safe_load(fp.read_text())
 
 
