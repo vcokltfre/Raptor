@@ -11,6 +11,4 @@ RUN poetry install
 
 COPY . /app
 
-RUN poetry run aerich upgrade
-
-CMD ["poetry", "run", "task", "start-api"]
+CMD ["sh", "api-start.sh"]
