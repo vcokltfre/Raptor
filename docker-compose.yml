@@ -11,6 +11,8 @@ services:
     environment:
       DB_URI: postgres://root:password@database:5432/raptor
     env_file: .env
+    ports:
+      - 5577:5577
 
   bot:
     build:
