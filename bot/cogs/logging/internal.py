@@ -6,7 +6,6 @@ from loguru import logger
 
 from bot.components.bot import Raptor
 
-
 CHANNEL_ID = getenv("BOT_LOGS_CHANNEL")
 
 
@@ -26,4 +25,4 @@ class InternalLogging(Cog):
         if not channel:
             return
 
-        await channel.send(f"`[{datetime.utcnow().isoformat()}]` `[{type}]` {message}")
+        await channel.send(f"`[{datetime.utcnow().isoformat()}]` `[{type}]` {message}")  # type: ignore
