@@ -1,7 +1,7 @@
 from os import environ
 from typing import Dict
 
-from discord import Intents, AllowedMentions, Message
+from discord import AllowedMentions, Intents, Message
 from discord.ext.commands import Bot
 from loguru import logger
 

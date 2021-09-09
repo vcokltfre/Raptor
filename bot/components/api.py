@@ -6,7 +6,9 @@ from aiohttp import ClientSession
 
 class APIConnector:
     def __init__(self) -> None:
-        self.base_url = f"{environ['API_SCHEME']}://{environ['API_LOCATION']}:{environ['API_PORT']}"
+        self.base_url = (
+            f"{environ['API_SCHEME']}://{environ['API_LOCATION']}:{environ['API_PORT']}"
+        )
 
         self._session: ClientSession = self.create_session()
 
