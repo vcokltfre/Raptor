@@ -70,6 +70,12 @@ class Raptor(Bot):
 
         await super().start(*args, **kwargs)
 
+    async def get_module_config(self, guild_id: int, module: str) -> dict:
+        if not (config := self.configs.get(guild_id)):
+            await self.update_config({"guild_id": guild_id})
+            config = self.configs.get(guild_id)
+        return config.get("plugins", {}).get(module, {})  # type: ignore
+
     def run(self) -> None:
         logger.info("Starting the bot...")
 
