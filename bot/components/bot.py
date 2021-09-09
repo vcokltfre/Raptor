@@ -1,4 +1,5 @@
 from os import environ
+from pathlib import Path
 from typing import Dict
 
 from discord import AllowedMentions, Intents, Message
@@ -32,6 +33,10 @@ class Raptor(Bot):
             heartbeat_timeout=15,
             max_messages=None,
         )
+
+        for directory in Path("./bot/cogs").iterdir():
+            self.load_extension(str(directory).replace("/", "."))
+            logger.info(f"Loaded extension: {directory}")
 
     async def get_prefix(self, message: Message) -> str:
         if not message.guild:
