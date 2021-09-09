@@ -25,6 +25,10 @@ class GuildLogging(Cog):
             if in_channel and in_channel in value.get("exclude_channels", []):
                 continue
 
+            if inc_channels := value.get("include_channels"):
+                if in_channel not in inc_channels:
+                    continue
+
             exc = value.get("exclude")
             if exc is not None:
                 if event in exc:
