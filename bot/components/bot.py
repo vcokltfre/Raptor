@@ -5,6 +5,8 @@ from discord import AllowedMentions, Intents, Message
 from discord.ext.commands import Bot
 from loguru import logger
 
+from common.redis import RedisClient
+
 from .api import APIConnector
 
 
@@ -14,6 +16,7 @@ class Raptor(Bot):
     def __init__(self) -> None:
         self.configs: Dict[int, dict] = {}
         self.api = APIConnector()
+        self.redis = RedisClient()
 
         super().__init__(
             command_prefix=self.get_prefix,
@@ -48,6 +51,19 @@ class Raptor(Bot):
             logger.info(f"Loaded guild config for {message.guild.id}.")
 
         return guild.get("prefix", "!")
+
+    async def update_config(self, data: dict) -> None:
+        guild_id = data["guild_id"]
+
+        config = await self.api.get(f"/guilds/{guild_id}/config")
+
+        guild = config["config"]  # type: ignore
+        self.configs[guild_id] = guild
+
+    async def start(self, *args, **kwargs) -> None:
+        self.loop.create_task(self.redis.listen("bridge:config", self.update_config))
+
+        await super().start(*args, **kwargs)
 
     def run(self) -> None:
         logger.info("Starting the bot...")
