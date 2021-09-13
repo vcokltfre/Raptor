@@ -2,41 +2,43 @@ from datetime import datetime
 from typing import Optional
 
 from discord import Member
+from discord.abc import GuildChannel
 from discord.ext.commands import Cog
+from loguru import logger
 
 from bot.components.bot import Raptor
+from common.schemas.logging import LoggingModel
 
 
 class GuildLogging(Cog):
     def __init__(self, bot: Raptor) -> None:
         self.bot = bot
 
-    async def get_log_channels(self, event: str, guild_id: int, in_channel: Optional[int] = None) -> list:
-        config = await self.bot.get_module_config(guild_id, "logging")
+    async def get_config(self, guild_id: int) -> LoggingModel:
+        return await self.bot.get_module_config(guild_id, "logging", LoggingModel)
 
-        if not config:
-            return []
-
+    def get_log_context(self, event: str, config: LoggingModel, in_channel: Optional[int] = None) -> list:
         channel_ids = []
 
-        for key, value in config.get("channels", {}).items():
+        for key, value in config.channels.items():
             key = int(key)
 
-            if in_channel and in_channel in value.get("exclude_channels", []):
-                continue
-
-            if inc_channels := value.get("include_channels"):
-                if in_channel not in inc_channels:
+            if value.exclude_channels:
+                if in_channel and in_channel in value.exclude_channels:
                     continue
 
-            exc = value.get("exclude")
+            if value.include_channels:
+                if in_channel not in value.include_channels:
+                    continue
+
+            exc = value.exclude
             if exc is not None:
                 if event in exc:
                     continue
                 channel_ids.append(key)
                 continue
 
-            inc = value.get("include")
+            inc = value.include
             if inc is not None:
                 if event in inc:
                     channel_ids.append(key)
@@ -46,30 +48,56 @@ class GuildLogging(Cog):
         if len(channels) > 5:
             channels = channels[:5]
 
-        return [channel for channel in channels if channel]
+        return [channel for channel in channels if isinstance(channel, GuildChannel) and channel.guild.id == config.guild_id]
 
-    async def log(self, event: str, guild_id: int, message: str, in_channel: Optional[int] = None) -> None:
-        channels = await self.get_log_channels(event, guild_id, in_channel)
+    def format_log(self, event: str, config: LoggingModel, **data) -> str:
+        fmt = getattr(config.formats, event)
+
+        for k, v in data.items():
+            repl = f"#({k})"
+
+            if isinstance(v, datetime):
+                ts_format = config.formats.timestamp or "%Y-%m-%d %H:%M:%S"
+                v = f"{v.strftime(ts_format)}"
+
+            fmt = fmt.replace(repl, v)
+
+        return fmt
+
+    async def log(self, event: str, config: LoggingModel, in_channel: Optional[int] = None, **data) -> None:
+        logger.debug(f"[Module:Logging] Event `{event}` received in guild `{config.guild_id}`")
+
+        channels = self.get_log_context(event, config, in_channel)
+        ts_format = config.formats.timestamp or "%Y-%m-%d %H:%M:%S"
+        ts = f"[`{datetime.utcnow().strftime(ts_format)}`] "
 
         for channel in channels:
-            time = datetime.utcnow()
-            time = time.replace(microsecond=0)
-            await channel.send(f"[`{time.isoformat()}`] {message}")
+            await channel.send(f"{ts}{self.format_log(event, config, **data)}")
 
     @Cog.listener()
     async def on_member_join(self, member: Member) -> None:
-        join_ts = round(member.created_at.timestamp())
+        config = await self.get_config(member.guild.id)
 
         await self.log(
             "MEMBER_JOIN",
-            member.guild.id,
-            f":inbox_tray: {member.mention} (**{member}**, `{member.id}`) joined (created <t:{join_ts}:R>, <t:{join_ts}:F>)"
+            config,
+            member_mention=member.mention,
+            member_name=member.name,
+            member_discussion=member.discriminator,
+            member_id=str(member.id),
+            member_created_at=member.created_at,
         )
 
     @Cog.listener()
     async def on_member_leave(self, member: Member) -> None:
+        config = await self.get_config(member.guild.id)
+
         await self.log(
             "MEMBER_LEAVE",
-            member.guild.id,
-            f":outbox_tray: {member.mention} (**{member}**, `{member.id}`) left"
+            config,
+            member_mention=member.mention,
+            member_name=member.name,
+            member_discussion=member.discriminator,
+            member_id=str(member.id),
+            member_created_at=member.created_at,
         )

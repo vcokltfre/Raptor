@@ -1,6 +1,6 @@
 from os import environ
 from pathlib import Path
-from typing import Dict
+from typing import Type, TypeVar
 
 from discord import AllowedMentions, Intents, Message
 from discord.ext.commands import Bot
@@ -9,14 +9,18 @@ from loguru import logger
 from common.redis import RedisClient
 
 from .api import APIConnector
+from .config import ConfigManager
+
+
+T = TypeVar("T")
 
 
 class Raptor(Bot):
     """A subclass of `discord.ext.commands.Bot` to add functionality."""
 
     def __init__(self) -> None:
-        self.configs: Dict[int, dict] = {}
         self.api = APIConnector()
+        self.configs = ConfigManager(self.api)
         self.redis = RedisClient()
 
         super().__init__(
@@ -42,39 +46,23 @@ class Raptor(Bot):
         if not message.guild:
             return "!"
 
-        guild = self.configs.get(message.guild.id)
-
-        if not guild:
-            logger.info(f"Fetching config for guild {message.guild.id} from the API...")
-            config = await self.api.get(f"/guilds/{message.guild.id}/config")
-
-            if not config:
-                return "!"
-
-            guild = config["config"]
-            self.configs[message.guild.id] = guild
-            logger.info(f"Loaded guild config for {message.guild.id}.")
+        guild = await self.configs.get_config(message.guild.id)
 
         return guild.get("prefix", "!")
 
     async def update_config(self, data: dict) -> None:
         guild_id = data["guild_id"]
 
-        config = await self.api.get(f"/guilds/{guild_id}/config")
-
-        guild = config["config"]  # type: ignore
-        self.configs[guild_id] = guild
+        await self.configs.update_config(guild_id)
 
     async def start(self, *args, **kwargs) -> None:
         self.loop.create_task(self.redis.listen("bridge:config", self.update_config))
 
         await super().start(*args, **kwargs)
 
-    async def get_module_config(self, guild_id: int, module: str) -> dict:
-        if not (config := self.configs.get(guild_id)):
-            await self.update_config({"guild_id": guild_id})
-            config = self.configs.get(guild_id)
-        return config.get("plugins", {}).get(module, {})  # type: ignore
+    async def get_module_config(self, guild_id: int, module: str, schema: Type[T]) -> T:
+        config = await self.configs.get_config(guild_id)
+        return schema(guild_id=guild_id, **config.get("plugins", {}).get(module, {}))
 
     def run(self) -> None:
         logger.info("Starting the bot...")
