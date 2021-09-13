@@ -7,3 +7,4 @@ class Guild(Model):
     name = fields.TextField()
     owner_id = fields.BigIntField()
     icon_url = fields.TextField()
+    config = fields.TextField()
