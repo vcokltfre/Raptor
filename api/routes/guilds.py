@@ -11,7 +11,7 @@ router = APIRouter(prefix="/guilds")
 async def get_guild_config(id: int) -> GuildConfigResponse:
     try:
         data = await get_config(id)
-    except FileNotFoundError:
+    except (FileNotFoundError, DoesNotExist):
         raise HTTPException(404, "Invalid guild.")
 
     return GuildConfigResponse(config=data)
