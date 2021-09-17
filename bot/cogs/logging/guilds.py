@@ -83,7 +83,7 @@ class GuildLogging(Cog):
             config,
             member_mention=member.mention,
             member_name=member.name,
-            member_discussion=member.discriminator,
+            member_disc=member.discriminator,
             member_id=str(member.id),
             member_created_at=member.created_at,
         )
@@ -97,7 +97,7 @@ class GuildLogging(Cog):
             config,
             member_mention=member.mention,
             member_name=member.name,
-            member_discussion=member.discriminator,
+            member_disc=member.discriminator,
             member_id=str(member.id),
             member_created_at=member.created_at,
         )
