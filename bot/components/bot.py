@@ -27,7 +27,7 @@ class Raptor(Bot):
             command_prefix=self.get_prefix,
             help_command=None,
             intents=Intents.all(),
-            chunk_guilds_at_startup=False,
+            chunk_guilds_at_startup=True,
             allowed_mentions=AllowedMentions(
                 everyone=False,
                 users=False,
