@@ -11,7 +11,6 @@ from common.redis import RedisClient
 from .api import APIConnector
 from .config import ConfigManager
 
-
 T = TypeVar("T")
 
 

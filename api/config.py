@@ -6,7 +6,6 @@ from yaml import safe_load
 
 from .cache import GuildConfigCache
 
-
 CACHE = GuildConfigCache()
 
 provider_string = environ["CONFIG_PROVIDER"]

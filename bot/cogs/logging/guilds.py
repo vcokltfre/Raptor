@@ -17,7 +17,9 @@ class GuildLogging(Cog):
     async def get_config(self, guild_id: int) -> LoggingModel:
         return await self.bot.get_module_config(guild_id, "logging", LoggingModel)
 
-    def get_log_context(self, event: str, config: LoggingModel, in_channel: Optional[int] = None) -> list:
+    def get_log_context(
+        self, event: str, config: LoggingModel, in_channel: Optional[int] = None
+    ) -> list:
         channel_ids = []
 
         for key, value in config.channels.items():
@@ -48,7 +50,11 @@ class GuildLogging(Cog):
         if len(channels) > 5:
             channels = channels[:5]
 
-        return [channel for channel in channels if isinstance(channel, GuildChannel) and channel.guild.id == config.guild_id]
+        return [
+            channel
+            for channel in channels
+            if isinstance(channel, GuildChannel) and channel.guild.id == config.guild_id
+        ]
 
     def format_log(self, event: str, config: LoggingModel, **data) -> str:
         fmt = getattr(config.formats, event)
@@ -64,8 +70,12 @@ class GuildLogging(Cog):
 
         return fmt
 
-    async def log(self, event: str, config: LoggingModel, in_channel: Optional[int] = None, **data) -> None:
-        logger.debug(f"[Module:Logging] Event `{event}` received in guild `{config.guild_id}`")
+    async def log(
+        self, event: str, config: LoggingModel, in_channel: Optional[int] = None, **data
+    ) -> None:
+        logger.debug(
+            f"[Module:Logging] Event `{event}` received in guild `{config.guild_id}`"
+        )
 
         channels = self.get_log_context(event, config, in_channel)
         ts_format = config.formats.timestamp or "%Y-%m-%d %H:%M:%S"

@@ -9,6 +9,7 @@ class GuildConfigCache:
             result = await func(id)
             self.guilds[id] = result
             return result
+
         return wrapper
 
     def release(self, id: int) -> None:
