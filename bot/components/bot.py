@@ -2,8 +2,8 @@ from os import environ
 from pathlib import Path
 from typing import Type, TypeVar
 
-from discord import AllowedMentions, Intents, Message
-from discord.ext.commands import Bot
+from discord import AllowedMentions, Intents, Member, Message
+from discord.ext.commands import Bot, Context
 from loguru import logger
 
 from common.redis import RedisClient
@@ -62,6 +62,33 @@ class Raptor(Bot):
     async def get_module_config(self, guild_id: int, module: str, schema: Type[T]) -> T:
         config = await self.configs.get_config(guild_id)
         return schema(guild_id=guild_id, **config.get("plugins", {}).get(module, {}))
+
+    async def get_level(self, guild_id: int, member: Member) -> int:
+        config = await self.configs.get_config(guild_id)
+        guild = self.get_guild(guild_id)
+
+        if not guild:
+            return 0
+
+        if guild.owner_id == member.id:
+            return 99999
+
+        if not (levels := config.get("levels")):
+            return 0
+
+        member_levels = [levels.get(member.id, 0)]
+
+        for role in member.roles:
+            if role.id in levels:
+                member_levels.append(levels[role.id])
+
+        return max(member_levels)
+
+    async def get_ctx_level(self, ctx: Context) -> int:
+        if not ctx.guild:
+            return 0
+
+        return await self.get_level(ctx.guild.id, ctx.author)  # type: ignore
 
     def run(self) -> None:
         logger.info("Starting the bot...")
